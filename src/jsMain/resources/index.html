@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>markdown-komponents</title>
+</head>
+<body>
+    <!--
+      This page is a dev harness for the library, not part of it — it's exactly what a caller
+      would write: plain markup, mounted whenever/wherever they choose.
+    -->
+    <button id="auto-normalize-toggle">Auto-normalize: ON</button>
+    <markdown-document toolbar="true">
+        <markdown-header-1>Markdown editor</markdown-header-1>
+        <markdown-paragraph>Start typing here.</markdown-paragraph>
+    </markdown-document>
+
+    <script src="markdown-komponents.js"></script>
+    <script>
+        var doc = document.querySelector('markdown-document');
+        var toggle = document.getElementById('auto-normalize-toggle');
+        toggle.addEventListener('click', function () {
+            doc.autoNormalize = !doc.autoNormalize;
+            toggle.textContent = 'Auto-normalize: ' + (doc.autoNormalize ? 'ON' : 'OFF');
+        });
+    </script>
+</body>
+</html>
