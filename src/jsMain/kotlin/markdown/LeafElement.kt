@@ -9,6 +9,9 @@ import org.w3c.dom.asList
 
 abstract class LeafElement : BlockElement() {
 
+    /** True for a leaf that has no content by design (e.g. a thematic break) — being childless doesn't mean it's stale. */
+    open fun isIntentionallyEmpty(): Boolean = false
+
     /*
       normalize for a leaf element consists of finding <br>s and:
       - create a new element of the same type with the content after the <br>
@@ -21,7 +24,7 @@ abstract class LeafElement : BlockElement() {
     */
     override fun normalizeContent(): Boolean {
         normalize()
-        if (childNodes.length == 0) {
+        if (childNodes.length == 0 && !isIntentionallyEmpty()) {
             remove() // an empty leaf serves no purpose
             return true
         }

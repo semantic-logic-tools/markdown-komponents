@@ -33,4 +33,9 @@ val normalizeCases = listOf(
         after = "<markdown-paragraph>$ZERO_WIDTH_SPACE</markdown-paragraph>" +
             "<markdown-paragraph>$ZERO_WIDTH_SPACE</markdown-paragraph>",
     ),
+    NormalizeCase(
+        name = "a childless <markdown-break> is not removed as if it were an empty leaf",
+        before = "<markdown-paragraph>before</markdown-paragraph><markdown-break></markdown-break><markdown-paragraph>after</markdown-paragraph>",
+        after = "<markdown-paragraph>before</markdown-paragraph><markdown-break></markdown-break><markdown-paragraph>after</markdown-paragraph>",
+    ),
 )

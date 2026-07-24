@@ -29,6 +29,8 @@ class ParserTest {
                 |
                 |A paragraph with **bold**, *italic*, ~~strike~~, `code`, a [link](https://kotlinlang.org) and an image ![alt](https://example.com/x.png).
                 |
+                |---
+                |
                 |> A quoted paragraph.
                 |
                 |- Bullet one
@@ -68,6 +70,8 @@ class ParserTest {
             val image = paragraph.querySelector("markdown-image")
             assertEquals("https://example.com/x.png", image?.getAttribute("destination"))
             assertEquals("alt", image?.textContent)
+
+            assertTrue(doc.querySelector("markdown-break") != null, "expected a hr, got:\n${doc.innerHTML}")
 
             val quote = doc.querySelector("markdown-quote") ?: error("expected a blockquote, got:\n${doc.innerHTML}")
             assertEquals("A quoted paragraph.", quote.querySelector("markdown-paragraph")?.textContent)

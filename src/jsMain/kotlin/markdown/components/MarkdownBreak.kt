@@ -16,4 +16,6 @@ class MarkdownBreak : LeafElement() {
     override fun getMarkdown(): String = "-----------------------\n"
 
     override fun containsMarkdownTextContent(): Boolean = false
+
+    override fun isIntentionallyEmpty(): Boolean = true
 }
