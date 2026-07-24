@@ -4,6 +4,9 @@ plugins {
     alias(libs.plugins.kotlinMultiplatform)
 }
 
+group = "logic.tools"
+version = "0.1.0"
+
 kotlin {
     js {
         browser {
@@ -18,6 +21,12 @@ kotlin {
         compilerOptions {
             target = "es2015"
             moduleKind.set(JsModuleKind.MODULE_ES)
+        }
+        compilations["main"].packageJson {
+            customField("description", "Markdown editor web components (Kotlin/JS)")
+            customField("license", "EUPL-1.2")
+            customField("repository", mapOf("type" to "git", "url" to "git+https://github.com/semantic-logic-tools/markdown-komponents.git"))
+            customField("keywords", listOf("markdown", "web-components", "kotlin-js", "wysiwyg"))
         }
     }
 
@@ -43,4 +52,19 @@ tasks.named("jsBrowserProductionWebpack") {
 }
 tasks.named("jsBrowserProductionLibraryDistribution") {
     dependsOn("jsProductionExecutableCompileSync")
+}
+
+// Publishes build/dist/js/productionLibrary (the library artifact, not the dev-harness
+// executable). Defaults to `npm publish --dry-run` — pass -PnpmDryRun=false for a real publish.
+tasks.register<Exec>("publishNpm") {
+    dependsOn("jsBrowserProductionLibraryDistribution")
+    workingDir = layout.buildDirectory.dir("dist/js/productionLibrary").get().asFile
+
+    val dryRun = (findProperty("npmDryRun") as String?)?.toBooleanStrictOrNull() ?: true
+    val npmCommand = if (org.gradle.internal.os.OperatingSystem.current().isWindows) "npm.cmd" else "npm"
+    commandLine = listOfNotNull(npmCommand, "publish", "--dry-run".takeIf { dryRun })
+
+    doFirst {
+        if (dryRun) logger.lifecycle("Dry run only (pass -PnpmDryRun=false to actually publish)")
+    }
 }
