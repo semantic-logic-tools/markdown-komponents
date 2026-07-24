@@ -1,4 +1,4 @@
-package parser
+package tsstack
 
 /**
  * Native JS `RegExp`, needed for [Marked.setBlockRule]: the Kotlin stdlib's `Regex` wraps a

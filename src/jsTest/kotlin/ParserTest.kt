@@ -2,16 +2,15 @@ import editor.MarkdownDocument
 import kotlinx.browser.document
 import org.w3c.dom.Element
 import org.w3c.dom.asList
-import parser.parseMarkdown
+import tsstack.parseMarkdown
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 /**
- * Exercises `markdown-document`'s `parser` property end-to-end using [parseMarkdown] — the
- * ts-stack/markdown-backed reference implementation kept in this test source set only. The
- * library itself ships no bundled markdown parser; `parser` is a plain `(String) -> String`
- * the consumer supplies, and this is one example of wiring a real one in.
+ * Exercises `markdown-document`'s `parser` property end-to-end using the optional `tsstack`
+ * package's [parseMarkdown] — one ready-made way to wire up `parser`, not a bundled default:
+ * `parser` itself stays a plain `(String) -> String` the consumer supplies.
  */
 class ParserTest {
 

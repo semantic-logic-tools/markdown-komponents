@@ -43,9 +43,11 @@ abstract class BaseMarkdownDocument : BaseWebComponent() {
 
     /**
      * Converts markdown text to the HTML string of `<markdown-*>` tags this class sets as
-     * `innerHTML`. Point this at the real parser (kept as an external TS/JS dependency — see
-     * `marked-renderer.ts`) once it's wired in; this placeholder only wraps the text in a
-     * paragraph so the component still works standalone.
+     * `innerHTML`. Left for the library consumer to wire up — this placeholder only wraps the
+     * text in a paragraph so the component still works standalone. To plug in a real parser,
+     * implement `render.MarkdownRenderer` (or use the default `render.MarkdownComponentsRenderer`)
+     * with whatever markdown engine you like; the optional `tsstack` package is a ready-made
+     * `@ts-stack/markdown`-backed example (`doc.parser = tsstack::parseMarkdown`).
      */
     var parser: (String) -> String = { md -> "<markdown-paragraph>$md</markdown-paragraph>" }
 
