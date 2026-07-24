@@ -27,6 +27,9 @@ kotlin {
         }
         jsTest.dependencies {
             implementation(kotlin("test"))
+            // reference implementation for parser tests only — production code takes `parser`
+            // as a plain (String) -> String property the library consumer supplies
+            implementation(npm("@ts-stack/markdown", "1.5.0"))
         }
     }
 }
