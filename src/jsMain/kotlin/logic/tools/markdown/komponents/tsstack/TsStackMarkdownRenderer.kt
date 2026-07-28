@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalJsExport::class)
+
 package logic.tools.markdown.komponents.tsstack
 
 import logic.tools.markdown.komponents.render.HeadingAnchors
@@ -10,7 +12,8 @@ import logic.tools.markdown.komponents.render.MarkdownRenderer
  * can be driven by ts-stack's parser. Part of this package's optional, ready-made ts-stack
  * integration; nothing elsewhere in the library references it unless you import `tsstack.*`.
  */
-open class TsStackMarkdownRenderer(private val delegate: MarkdownRenderer = MarkdownComponentsRenderer()) : TsStackMarkdown.Renderer() {
+@JsExport
+open class TsStackMarkdownRenderer(internal val delegate: MarkdownRenderer = MarkdownComponentsRenderer()) : TsStackMarkdown.Renderer() {
 
     // ts-stack passes a per-cell `header` flag but no per-row one — a row is a header row iff any
     // of the cells rendered just before it (via tablecell) were header cells.
@@ -97,27 +100,40 @@ private val customBlockRule =
     JsRegExp("""^\[\[\[([a-z\-]+)\n([\s\S]+?)\1\]\]\]\n""")
 
 /**
- * Parses [markdown] using `@ts-stack/markdown`, driving [renderer] (this library's own components
- * by default) to produce the resulting `<markdown-*>` HTML. Assignable directly to
- * `markdown-document.parser`, e.g. `doc.parser = ::parseMarkdown`.
+ * Parses [markdown] using `@ts-stack/markdown`, driving [renderer] to produce the resulting
+ * `<markdown-*>` HTML. This is the overload to use when [renderer] itself needs the ts-stack
+ * `options` hook (e.g. `options.escape`) alongside overriding per-construct methods like `image()` —
+ * subclass [TsStackMarkdownRenderer] to get both from one place, matching the original TS library's
+ * combined renderer. Exported under `parseMarkdownWithTsStackRenderer` since a JS/TS export can't
+ * overload the plain `parseMarkdown` name.
  */
-fun parseMarkdown(markdown: String, renderer: MarkdownRenderer = MarkdownComponentsRenderer()): String {
+@JsExport
+@JsName("parseMarkdownWithTsStackRenderer")
+fun parseMarkdown(markdown: String, renderer: TsStackMarkdownRenderer): String {
     val options = TsStackMarkdown.MarkedOptions()
     options.gfm = true
-
-    val tsStackRenderer = TsStackMarkdownRenderer(renderer)
-    options.renderer = tsStackRenderer
+    options.renderer = renderer
 
     // fenced code block with an explicit `{id}` (and optional language), e.g. ```kotlin {my-id}
     TsStackMarkdown.Marked.setBlockRule(fencedCodeWithAnchorRule) { execArr ->
         val groups = execArr!!
-        tsStackRenderer.codeWithAnchor(groups[4]!!, groups[2], groups[3])
+        renderer.codeWithAnchor(groups[4]!!, groups[2], groups[3])
     }
     // a custom tagged block: [[[tag\n...content...\ntag]]]
     TsStackMarkdown.Marked.setBlockRule(customBlockRule) { execArr ->
         val groups = execArr!!
-        renderer.custom(groups[1]!!, parseMarkdown(groups[2]!!, renderer))
+        renderer.delegate.custom(groups[1]!!, parseMarkdown(groups[2]!!, renderer))
     }
 
     return TsStackMarkdown.Marked.parse(markdown, options)
 }
+
+/**
+ * Parses [markdown] using `@ts-stack/markdown`, driving [renderer] (this library's own components
+ * by default) to produce the resulting `<markdown-*>` HTML. Assignable directly to
+ * `markdown-document.parser`, e.g. `doc.parser = ::parseMarkdown`. For a [renderer] that also needs
+ * ts-stack's `options` hook, see the [TsStackMarkdownRenderer]-accepting overload instead.
+ */
+@JsExport
+fun parseMarkdown(markdown: String, renderer: MarkdownRenderer = MarkdownComponentsRenderer()): String =
+    parseMarkdown(markdown, TsStackMarkdownRenderer(renderer))

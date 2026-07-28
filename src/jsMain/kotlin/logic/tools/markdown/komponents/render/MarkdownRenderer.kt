@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalJsExport::class)
+
 package logic.tools.markdown.komponents.render
 
 /**
@@ -7,6 +9,7 @@ package logic.tools.markdown.komponents.render
  * from `@ts-stack/markdown`) calls into an implementation as it walks whatever tokens that engine
  * produces. [MarkdownComponentsRenderer] is the default/reference implementation.
  */
+@JsExport
 interface MarkdownRenderer {
     fun heading(text: String, level: Int, id: String?): String
     fun paragraph(text: String): String

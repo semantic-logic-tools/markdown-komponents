@@ -1,9 +1,12 @@
+@file:OptIn(ExperimentalJsExport::class)
+
 package logic.tools.markdown.komponents.markdown
 
 import logic.tools.markdown.komponents.Selection
 import org.w3c.dom.HTMLBRElement
 import org.w3c.dom.asList
 
+@JsExport
 abstract class InlineElement : MarkdownComponent() {
     override val mustBeDirectChildOfDocument = false
 
@@ -53,4 +56,5 @@ abstract class InlineElement : MarkdownComponent() {
     }
 }
 
+@JsExport
 abstract class TerminalInlineElement : MarkdownComponent()

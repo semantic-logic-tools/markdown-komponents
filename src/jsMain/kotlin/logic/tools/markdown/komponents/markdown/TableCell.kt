@@ -25,8 +25,9 @@ abstract class TableCell : ContainerElement() {
 
     override fun getMarkdown(): String =
         childNodes.asList().joinToString("") { child ->
+            val markdownElement = asMarkdownElement(child)
             when {
-                child is MarkdownElement -> child.getMarkdown()
+                markdownElement != null -> markdownElement.getMarkdown()
                 child.textContent?.replace(Regex("\\s"), "")?.isEmpty() == true -> ""
                 else -> child.textContent?.replace(Regex("^\\s+", RegexOption.MULTILINE), " ") ?: ""
             }

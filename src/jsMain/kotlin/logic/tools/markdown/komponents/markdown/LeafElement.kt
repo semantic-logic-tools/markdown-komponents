@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalJsExport::class)
+
 package logic.tools.markdown.komponents.markdown
 
 import logic.tools.markdown.komponents.Selection
@@ -7,6 +9,7 @@ import org.w3c.dom.HTMLBRElement
 import org.w3c.dom.Text
 import org.w3c.dom.asList
 
+@JsExport
 abstract class LeafElement : BlockElement() {
 
     /** True for a leaf that has no content by design (e.g. a thematic break) — being childless doesn't mean it's stale. */

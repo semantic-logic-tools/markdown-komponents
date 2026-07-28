@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalJsExport::class)
+
 package logic.tools.markdown.komponents.editor
 
 /**
@@ -6,6 +8,7 @@ package logic.tools.markdown.komponents.editor
  * `document.toolbar` can hold any `Element` (for `classList` toggling); a toolbar that also
  * implements this interface additionally gets the highlight/dropdown-title callbacks.
  */
+@JsExport
 interface EditorToolbar {
     fun highlightBoldButton()
     fun removeBoldButtonHighlighting()

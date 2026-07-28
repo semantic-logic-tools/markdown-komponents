@@ -4,9 +4,9 @@ import logic.tools.markdown.komponents.Selection
 import logic.tools.markdown.komponents.element
 import kotlinx.browser.document
 import logic.tools.markdown.komponents.markdown.ContainerElement
-import logic.tools.markdown.komponents.markdown.MarkdownElement
 import logic.tools.markdown.komponents.markdown.MarkdownElementEscapeByBackspace
 import logic.tools.markdown.komponents.markdown.MarkdownElementWithLevel
+import logic.tools.markdown.komponents.markdown.asMarkdownElement
 import org.w3c.dom.Element
 import org.w3c.dom.OPEN
 import org.w3c.dom.asList
@@ -42,7 +42,7 @@ class MarkdownQuote : ContainerElement(), MarkdownElementWithLevel, MarkdownElem
     override fun getMarkdown(): String =
         // FIXME this should be per line, not per child
         childNodes.asList().joinToString("") { child ->
-            "> " + if (child is MarkdownElement) child.getMarkdown() else (child.textContent ?: "")
+            "> " + (asMarkdownElement(child)?.getMarkdown() ?: (child.textContent ?: ""))
         }
 
     override fun containsMarkdownTextContent(): Boolean = true

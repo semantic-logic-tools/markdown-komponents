@@ -1,6 +1,9 @@
+@file:OptIn(ExperimentalJsExport::class)
+
 package logic.tools.markdown.komponents.render
 
 /** The library's own default [MarkdownRenderer]: renders straight to this library's `<markdown-*>` custom elements. */
+@JsExport
 open class MarkdownComponentsRenderer : MarkdownRenderer {
 
     override fun heading(text: String, level: Int, id: String?): String {

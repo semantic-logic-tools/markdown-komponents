@@ -35,7 +35,7 @@ abstract class ListItem : ContainerElement() {
     fun getMarkdownWithTextForElement(): String =
         childNodes.asList().joinToString("") { child ->
             // trim to avoid extra spaces/newlines being interpreted as a paragraph break
-            if (child is MarkdownElement) child.getMarkdown() else (child.textContent?.trim() ?: "") + "\n"
+            asMarkdownElement(child)?.getMarkdown() ?: (child.textContent?.trim() ?: "") + "\n"
         }
 
     override fun normalizeContent(): Boolean {

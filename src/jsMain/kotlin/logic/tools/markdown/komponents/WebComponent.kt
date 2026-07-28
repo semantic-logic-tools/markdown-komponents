@@ -46,6 +46,8 @@ abstract external class WebComponent : HTMLElement {
     override fun convertPointFromNode(point: DOMPointInit, from: dynamic, options: ConvertCoordinateOptions): DOMPoint
 }
 
+@OptIn(ExperimentalJsExport::class)
+@JsExport
 abstract class BaseWebComponent : WebComponent() {
     override fun connectedCallback() {}
     override fun disconnectedCallback() {}

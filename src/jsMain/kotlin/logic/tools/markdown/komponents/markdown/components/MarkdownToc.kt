@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalJsExport::class)
+
 package logic.tools.markdown.komponents.markdown.components
 
 import logic.tools.markdown.komponents.BaseWebComponent
@@ -18,6 +20,7 @@ import logic.tools.markdown.komponents.style
  * implements [MarkdownElement] so it round-trips through `getMarkdown()` as a `${toc}` placeholder;
  * it isn't itself editable markdown content.
  */
+@JsExport
 class MarkdownToc : BaseWebComponent(), MarkdownElement {
     override val mustBeDirectChildOfDocument = false
 
@@ -73,7 +76,8 @@ class MarkdownToc : BaseWebComponent(), MarkdownElement {
         }
     }
 
-    private fun refresh() {
+    /** Rebuilds the table of contents from the current [markdownDocument]. Runs automatically when that property is set. */
+    fun refresh() {
         val root = markdownDocument ?: return
         val shadow = shadowRoot ?: return
 

@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalJsExport::class)
+
 package logic.tools.markdown.komponents.editor
 
 import logic.tools.markdown.komponents.BaseWebComponent
@@ -16,6 +18,7 @@ import logic.tools.markdown.komponents.style
  * and button references are kept directly from construction instead of re-discovered later via
  * `querySelector('.bold')`-style class-name lookups.
  */
+@JsExport
 class MarkdownToolbar : BaseWebComponent(), EditorToolbar {
 
     var markdownDocument: BaseMarkdownDocument? = null

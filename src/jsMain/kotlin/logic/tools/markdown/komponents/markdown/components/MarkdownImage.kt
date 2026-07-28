@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalJsExport::class)
+
 package logic.tools.markdown.komponents.markdown.components
 
 import logic.tools.markdown.komponents.element
@@ -12,11 +14,13 @@ import org.w3c.dom.ShadowRootMode
 import org.w3c.files.FileReader
 import logic.tools.markdown.komponents.style
 
-class MarkdownImage : TerminalInlineElement() {
+/** Open so consumers can subclass it to customize how an image renders, e.g. inlining a data URI differently. */
+@JsExport
+open class MarkdownImage : TerminalInlineElement() {
     override val mustBeDirectChildOfDocument = false
 
-    private val img: HTMLImageElement
-    private val uploadInput: HTMLInputElement
+    protected val img: HTMLImageElement
+    protected val uploadInput: HTMLInputElement
 
     var destination: String
         get() = getAttribute("destination") ?: ""
@@ -50,16 +54,17 @@ class MarkdownImage : TerminalInlineElement() {
 
     override fun connectedCallback() {
         super.connectedCallback()
-        updateImage()
+        render()
     }
 
     override fun attributeChangedCallback(name: String, oldValue: String?, newValue: String?) {
         if (name == "destination" || name == "title") {
-            updateImage()
+            render()
         }
     }
 
-    private fun updateImage() {
+    /** Updates the shadow DOM to reflect current state. Override to customize how the image is displayed. */
+    protected open fun render() {
         img.src = destination
         img.title = title
         img.alt = innerText

@@ -1,10 +1,12 @@
+@file:OptIn(ExperimentalJsExport::class)
+
 package logic.tools.markdown.komponents.markdown.components
 
 import kotlinx.browser.document
 import logic.tools.markdown.komponents.markdown.LeafElement
 import logic.tools.markdown.komponents.markdown.MarkdownComponent
-import logic.tools.markdown.komponents.markdown.MarkdownElement
 import logic.tools.markdown.komponents.markdown.ZERO_WIDTH_SPACE
+import logic.tools.markdown.komponents.markdown.asMarkdownElement
 import org.w3c.dom.HTMLBRElement
 import org.w3c.dom.OPEN
 import org.w3c.dom.asList
@@ -17,6 +19,7 @@ import logic.tools.markdown.komponents.style
  * Markdown paragraphs can only contain #text nodes, inline markdown components, or a `<br>` —
  * [normalizeContent] keeps a zero-width space in it so it doesn't disappear while empty.
  */
+@JsExport
 class MarkdownParagraph : LeafElement() {
     override val mustBeDirectChildOfDocument = true
 
@@ -40,8 +43,9 @@ class MarkdownParagraph : LeafElement() {
 
     override fun getMarkdown(): String =
         childNodes.asList().joinToString("") { child ->
+            val markdownElement = asMarkdownElement(child)
             when {
-                child is MarkdownElement -> child.getMarkdown()
+                markdownElement != null -> markdownElement.getMarkdown()
                 child.textContent?.replace(Regex("\\s"), "")?.isEmpty() == true -> ""
                 else -> child.textContent?.replace(Regex("^\\s+", RegexOption.MULTILINE), " ") ?: ""
             }

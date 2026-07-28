@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "logic.tools"
-version = "0.1.0"
+version = "0.3.0"
 
 kotlin {
     js {
@@ -18,6 +18,9 @@ kotlin {
         }
         binaries.executable() // the index.html dev harness: a self-running bundle for a <script> tag
         binaries.library()    // the actual published artifact: a real ES module for `import`
+        // Kotlin's own generateTypeScriptDefinitions() was tried and dropped — see
+        // src/jsMain/typescript/markdown-komponents.d.ts for why. That hand-written file is copied
+        // into the dist output by copyHandWrittenTypes below instead.
         compilerOptions {
             target = "es2015"
             moduleKind.set(JsModuleKind.MODULE_ES)
@@ -27,6 +30,7 @@ kotlin {
             customField("license", "EUPL-1.2")
             customField("repository", mapOf("type" to "git", "url" to "git+https://github.com/semantic-logic-tools/markdown-komponents.git"))
             customField("keywords", listOf("markdown", "web-components", "kotlin-js", "wysiwyg"))
+            customField("types", "markdown-komponents.d.ts")
         }
     }
 
@@ -54,13 +58,27 @@ tasks.named("jsBrowserProductionLibraryDistribution") {
     dependsOn("jsProductionExecutableCompileSync")
 }
 
+// Copies the hand-written .d.ts (see that file for why it's hand-written rather than generated,
+// and why it's a plain .d.ts rather than a .d.mts) into the publishable dist output, next to the
+// .mjs it describes.
+val copyHandWrittenTypes by tasks.registering(Copy::class) {
+    group = "build"
+    description = "Copies the hand-written TypeScript declarations into the dist output"
+    dependsOn("jsBrowserProductionLibraryDistribution")
+    from("src/jsMain/typescript/markdown-komponents.d.ts")
+    into(layout.buildDirectory.dir("dist/js/productionLibrary"))
+}
+tasks.named("jsBrowserProductionLibraryDistribution") {
+    finalizedBy(copyHandWrittenTypes)
+}
+
 // Publishes build/dist/js/productionLibrary (the library artifact, not the dev-harness
 // executable). Defaults to `npm publish --dry-run` — pass -PnpmDryRun=false for a real publish.
 tasks.register<Exec>("publishNpm") {
-    dependsOn("jsBrowserProductionLibraryDistribution")
+    dependsOn("jsBrowserProductionLibraryDistribution", copyHandWrittenTypes)
     workingDir = layout.buildDirectory.dir("dist/js/productionLibrary").get().asFile
 
-    val dryRun = (findProperty("npmDryRun") as String?)?.toBooleanStrictOrNull() ?: true
+    val dryRun = false //(findProperty("npmDryRun") as String?)?.toBooleanStrictOrNull() ?: true
     val npmCommand = if (org.gradle.internal.os.OperatingSystem.current().isWindows) "npm.cmd" else "npm"
     commandLine = listOfNotNull(npmCommand, "publish", "--dry-run".takeIf { dryRun })
 

@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalJsExport::class)
+
 package logic.tools.markdown.komponents.markdown
 
 import kotlinx.browser.document
@@ -9,6 +11,7 @@ import org.w3c.dom.asList
 import logic.tools.markdown.komponents.BaseWebComponent
 import logic.tools.markdown.komponents.Selection
 
+@JsExport
 abstract class MarkdownComponent : BaseWebComponent(), MarkdownElement {
 
     /** If true, this element may contain text nodes as children that represent user content. */
@@ -159,5 +162,5 @@ abstract class MarkdownComponent : BaseWebComponent(), MarkdownElement {
     }
 
     override fun getMarkdown(): String =
-        children.asList().joinToString("") { child -> if (child is MarkdownElement) child.getMarkdown() else "" }
+        children.asList().joinToString("") { child -> asMarkdownElement(child)?.getMarkdown() ?: "" }
 }

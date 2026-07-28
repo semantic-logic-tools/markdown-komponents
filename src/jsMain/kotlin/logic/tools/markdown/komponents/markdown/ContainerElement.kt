@@ -1,8 +1,11 @@
+@file:OptIn(ExperimentalJsExport::class)
+
 package logic.tools.markdown.komponents.markdown
 
 import org.w3c.dom.Node
 import org.w3c.dom.asList
 
+@JsExport
 abstract class ContainerElement : MarkdownComponent() {
 
     override fun contentLength(): Int {

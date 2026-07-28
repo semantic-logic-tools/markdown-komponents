@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalJsExport::class)
+
 package logic.tools.markdown.komponents.editor
 
 import logic.tools.markdown.komponents.BaseWebComponent
@@ -39,6 +41,7 @@ import logic.tools.markdown.komponents.style
  * `markdown-document`/`markdown-editor` share everything except their shadow DOM, which is built
  * once from each concrete class's own `init` (a component can only call `attachShadow` once).
  */
+@JsExport
 abstract class BaseMarkdownDocument : BaseWebComponent() {
 
     /**
@@ -515,7 +518,7 @@ abstract class BaseMarkdownDocument : BaseWebComponent() {
         return result
     }
 
-    private fun onChange() {
+    fun onChange() {
         window.setTimeout({ dispatchEvent(org.w3c.dom.CustomEvent("change")) }, 0)
     }
 
@@ -999,6 +1002,7 @@ fun unsurroundRange(tagName: String, range: Range) {
     } while (surrounded)
 }
 
+@JsExport
 class MarkdownDocument : BaseMarkdownDocument() {
     init {
         renderStandardShadow()

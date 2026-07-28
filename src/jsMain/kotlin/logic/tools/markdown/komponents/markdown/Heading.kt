@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalJsExport::class)
+
 package logic.tools.markdown.komponents.markdown
 
 import logic.tools.markdown.komponents.element
@@ -7,6 +9,7 @@ import org.w3c.dom.ShadowRootMode
 import logic.tools.markdown.komponents.slot
 import logic.tools.markdown.komponents.style
 
+@JsExport
 abstract class Heading : LeafElement() {
     abstract val depth: Int
     override val mustBeDirectChildOfDocument = true

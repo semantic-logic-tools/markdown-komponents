@@ -1,7 +1,7 @@
 package logic.tools.markdown.komponents.markdown.components
 
 import logic.tools.markdown.komponents.markdown.ContainerElement
-import logic.tools.markdown.komponents.markdown.MarkdownElement
+import logic.tools.markdown.komponents.markdown.asMarkdownElement
 import org.w3c.dom.OPEN
 import org.w3c.dom.ShadowRootInit
 import org.w3c.dom.ShadowRootMode
@@ -28,7 +28,7 @@ open class MarkdownTableRow : ContainerElement() {
 
     // TODO: nicer output — align column widths, etc.
     override fun getMarkdown(): String =
-        "| " + children.asList().joinToString(" | ") { child -> if (child is MarkdownElement) child.getMarkdown() else "" } + " |"
+        "| " + children.asList().joinToString(" | ") { child -> asMarkdownElement(child)?.getMarkdown() ?: "" } + " |"
 
     override fun containsMarkdownTextContent(): Boolean = false
 }
