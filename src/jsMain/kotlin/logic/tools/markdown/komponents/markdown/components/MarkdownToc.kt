@@ -66,6 +66,8 @@ class MarkdownToc : BaseWebComponent(), MarkdownElement {
             }
             """.trimIndent()
         )
+
+        upgradeProperty("markdownDocument")
     }
 
     override fun connectedCallback() {

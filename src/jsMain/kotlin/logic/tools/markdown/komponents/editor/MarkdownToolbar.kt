@@ -21,7 +21,16 @@ import logic.tools.markdown.komponents.style
 @JsExport
 class MarkdownToolbar : BaseWebComponent(), EditorToolbar {
 
-    var markdownDocument: BaseMarkdownDocument? = null
+    private var markdownDocumentField: BaseMarkdownDocument? = null
+
+    // Explicit get/set (backed by markdownDocumentField, a differently-named field) rather than a
+    // plain var: see BaseMarkdownDocument.parser's doc comment for why a plain var's default
+    // initializer would silently destroy a pre-upgrade value instead of leaving it for upgradeProperty.
+    var markdownDocument: BaseMarkdownDocument?
+        get() = markdownDocumentField
+        set(value) {
+            markdownDocumentField = value
+        }
 
     private val boldButton: ToggleToolbarButton
     private val italicButton: ToggleToolbarButton
@@ -99,6 +108,8 @@ class MarkdownToolbar : BaseWebComponent(), EditorToolbar {
         toolbarRow.element("slot") { setAttribute("name", "toolbar") }
 
         shadow.slot()
+
+        upgradeProperty("markdownDocument")
     }
 
     override fun connectedCallback() {

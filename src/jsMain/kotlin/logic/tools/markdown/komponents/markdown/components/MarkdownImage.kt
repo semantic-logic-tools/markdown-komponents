@@ -50,6 +50,8 @@ open class MarkdownImage : TerminalInlineElement() {
         img = shadow.element("img") { setAttribute("part", "image") } as HTMLImageElement
         img.addEventListener("error", { onError() })
         shadow.element("slot") { setAttribute("style", "display:none;") } // the alt text source, not shown directly
+
+        upgradeProperty("destination")
     }
 
     override fun connectedCallback() {

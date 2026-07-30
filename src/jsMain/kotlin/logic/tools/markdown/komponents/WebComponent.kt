@@ -53,6 +53,37 @@ abstract class BaseWebComponent : WebComponent() {
     override fun disconnectedCallback() {}
     override fun adoptedCallback() {}
     override fun attributeChangedCallback(name: String, oldValue: String?, newValue: String?) {}
+
+    /**
+     * The `_saveInstanceProperties`/`_upgradeProperty` pattern Lit's `ReactiveElement` applies to
+     * every `@property()` automatically (the original TS library extended `LitElement`, which is why
+     * this was never a problem there). A caller can create this tag's element (e.g. via a
+     * `<template>` clone, or before this module has registered it) and assign one of its properties
+     * *before* the browser upgrades that object to this real class — at that moment its prototype is
+     * still a plain `HTMLElement`, so the assignment creates an ordinary own value instead of
+     * invoking this class's accessor. The browser never replays that own value once the real
+     * prototype gets attached, so it permanently shadows the accessor from then on: every later
+     * assignment silently updates the same dead slot instead of ever reaching this class again.
+     *
+     * Call this once per affected property name, from within the constructor (i.e. as this object
+     * *becomes* the real class) — by then the accessor is already live, so re-assigning the rescued
+     * value through it (after deleting the shadowing own value) drives it through the real setter.
+     */
+    protected fun upgradeProperty(name: String) {
+        val self = asDynamic()
+        if (hasOwnProperty(self, name)) {
+            val value = self[name]
+            deleteOwnProperty(self, name)
+            self[name] = value
+        }
+    }
+}
+
+private fun hasOwnProperty(obj: dynamic, key: String): Boolean =
+    js("Object.prototype.hasOwnProperty.call(obj, key)") as Boolean
+
+private fun deleteOwnProperty(obj: dynamic, key: String) {
+    js("delete obj[key]")
 }
 
 /**

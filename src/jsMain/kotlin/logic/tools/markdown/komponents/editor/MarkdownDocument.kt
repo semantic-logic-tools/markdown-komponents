@@ -37,12 +37,16 @@ import org.w3c.files.FileReader
 import logic.tools.markdown.komponents.slot
 import logic.tools.markdown.komponents.style
 
+private val defaultParser: (String) -> String = { md -> "<markdown-paragraph>$md</markdown-paragraph>" }
+
 /**
  * `markdown-document`/`markdown-editor` share everything except their shadow DOM, which is built
  * once from each concrete class's own `init` (a component can only call `attachShadow` once).
  */
 @JsExport
 abstract class BaseMarkdownDocument : BaseWebComponent() {
+
+    private var parserOverride: ((String) -> String)? = null
 
     /**
      * Converts markdown text to the HTML string of `<markdown-*>` tags this class sets as
@@ -51,18 +55,51 @@ abstract class BaseMarkdownDocument : BaseWebComponent() {
      * implement `render.MarkdownRenderer` (or use the default `render.MarkdownComponentsRenderer`)
      * with whatever markdown engine you like; the optional `tsstack` package is a ready-made
      * `@ts-stack/markdown`-backed example (`doc.parser = tsstack::parseMarkdown`).
+     *
+     * An explicit `get`/`set` (backed by [parserOverride], a differently-named field) rather than a
+     * plain `var parser: ... = defaultParser`: a plain var's default initializer compiles to an
+     * unconditional `this.parser = defaultParser` in the constructor — since a plain var has no real
+     * accessor on the prototype, that's a direct overwrite of whatever's already sitting in the
+     * `parser` slot, silently destroying a value a caller assigned before this element was upgraded
+     * to this real class (see [upgradeProperty]). Routing the default through the *getter* instead
+     * means the constructor only ever touches [parserOverride]'s own (unreachable-from-outside) slot,
+     * leaving a pre-upgrade `parser` value completely undisturbed for [upgradeProperty] to rescue.
      */
-    var parser: (String) -> String = { md -> "<markdown-paragraph>$md</markdown-paragraph>" }
+    var parser: (String) -> String
+        get() = parserOverride ?: defaultParser
+        set(value) {
+            parserOverride = value
+        }
 
     var markdown: String
         get() = getMarkdown()
         set(value) = renderMarkdown(value)
 
-    var toolbar: Element? = null
+    private var toolbarField: Element? = null
 
-    var selectionRoot: org.w3c.dom.Document = document
+    var toolbar: Element?
+        get() = toolbarField
+        set(value) {
+            toolbarField = value
+        }
 
-    var onLinkClick: ((String) -> Unit)? = null
+    private var selectionRootField: org.w3c.dom.Document = document
+
+    var selectionRoot: org.w3c.dom.Document
+        get() = selectionRootField
+        set(value) {
+            selectionRootField = value
+        }
+
+    private var onLinkClickField: ((String) -> Unit)? = null
+
+    var onLinkClick: ((String) -> Unit)?
+        get() = onLinkClickField
+        set(value) {
+            onLinkClickField = value
+        }
+
+    private var autoNormalizeField: Boolean = true
 
     /**
      * When false, typing/editing no longer auto-normalizes on `input`. Flip this off from devtools
@@ -71,7 +108,11 @@ abstract class BaseMarkdownDocument : BaseWebComponent() {
      * to grab it for a NormalizeCase regression test. Call `normalizeContent()` manually afterwards
      * to capture the expected "after" half of the fixture too.
      */
-    var autoNormalize: Boolean = true
+    var autoNormalize: Boolean
+        get() = autoNormalizeField
+        set(value) {
+            autoNormalizeField = value
+        }
 
     var currentSelection: Selection? = null
         private set
@@ -91,6 +132,19 @@ abstract class BaseMarkdownDocument : BaseWebComponent() {
     private val onMouseUp: (Event) -> Unit = { mouseup() }
     private val onSelectStart: (Event) -> Unit = { selectstart() }
     private val onSelectionChange: (Event) -> Unit = { selectionchange() }
+
+    init {
+        // Must run after every property above has already been assigned its default (this init
+        // block runs last among them, in declaration order) — upgradeProperty() re-assigns whichever
+        // of these were set on this element *before* it became this class, and a default initializer
+        // running afterwards would just clobber the rescued value right back to the default.
+        upgradeProperty("parser")
+        upgradeProperty("markdown")
+        upgradeProperty("toolbar")
+        upgradeProperty("selectionRoot")
+        upgradeProperty("onLinkClick")
+        upgradeProperty("autoNormalize")
+    }
 
     protected fun renderStandardShadow() {
         attachShadow(ShadowRootInit(ShadowRootMode.OPEN)).apply {
