@@ -10,6 +10,7 @@ import logic.tools.markdown.komponents.getSelection
 import kotlinx.browser.document
 import kotlinx.browser.window
 import logic.tools.markdown.komponents.markdown.MarkdownComponent
+import logic.tools.markdown.komponents.markdown.asMarkdownElement
 import logic.tools.markdown.komponents.markdown.MarkdownElementEscapeByBackspace
 import logic.tools.markdown.komponents.markdown.MarkdownElementWithLevel
 import logic.tools.markdown.komponents.markdown.ZERO_WIDTH_SPACE
@@ -552,6 +553,12 @@ abstract class BaseMarkdownDocument : BaseWebComponent() {
                     child.replaceWith(p)
                     (p as MarkdownComponent).normalizeContent()
                 }
+                asMarkdownElement(child) != null -> {
+                    // A consumer-defined custom element implementing MarkdownElement structurally
+                    // (not one compiled by this library, so `is MarkdownComponent` above misses it) —
+                    // leave it alone rather than falling through to the markdown-html wrap below.
+                    // getMarkdown() will call it directly via the same duck-typed check.
+                }
                 else -> {
                     val html = document.createElement("markdown-html")
                     (child as ChildNode).replaceWith(html)
@@ -600,7 +607,7 @@ abstract class BaseMarkdownDocument : BaseWebComponent() {
         normalizeContent()
     }
 
-    fun getMarkdown(): String = children.asList().joinToString("") { if (it is MarkdownComponent) it.getMarkdown() else "" }
+    fun getMarkdown(): String = children.asList().joinToString("") { asMarkdownElement(it)?.getMarkdown() ?: "" }
 
     fun getCurrentLeafBlock(): logic.tools.markdown.komponents.markdown.LeafElement? {
         var element: Node? = getSelection()?.anchorNode
